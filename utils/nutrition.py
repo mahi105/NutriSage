@@ -13,21 +13,38 @@ def get_food_analysis(food_query: str) -> Optional[Dict]:
     Get nutrition information for a food item from USDA API
     """
     try:
+        # Add logging to debug API calls
+        logger.debug(f"Searching for food: {food_query}")
+
         response = requests.get(
             f"{USDA_API_BASE_URL}/foods/search",
             params={
                 "api_key": USDA_API_KEY,
                 "query": food_query,
-                "pageSize": 1
+                "pageSize": 5,  # Get more results to find better matches
+                "dataType": ["Survey (FNDDS)"],  # Focus on standard food database
+                "sortBy": "dataType.keyword",
+                "sortOrder": "asc"
             }
         )
         response.raise_for_status()
         data = response.json()
 
         if not data.get('foods'):
+            logger.debug(f"No foods found for query: {food_query}")
             return None
 
+        # Try to find an exact match first
+        for food in data['foods']:
+            description = food.get('description', '').lower()
+            if food_query.lower() in description:
+                logger.debug(f"Found matching food: {food['description']}")
+                return food
+
+        # If no exact match, return the first result
+        logger.debug(f"No exact match found, using first result: {data['foods'][0]['description']}")
         return data['foods'][0]
+
     except requests.exceptions.RequestException as e:
         logger.error(f"USDA API request failed: {str(e)}")
         return None
@@ -39,7 +56,7 @@ def analyze_food_for_chat(food_query: str) -> str:
     food_data = get_food_analysis(food_query)
 
     if not food_data:
-        return f"I couldn't find nutritional information for {food_query}. Could you try another food?"
+        return f"I couldn't find nutritional information for {food_query}. Could you try being more specific? For example, instead of 'orange', try 'fresh orange' or 'orange fruit'."
 
     # Extract key nutrients
     nutrients = food_data.get('foodNutrients', [])
@@ -51,11 +68,11 @@ def analyze_food_for_chat(food_query: str) -> str:
 
         if 'protein' in name:
             nutrient_dict['protein'] = value
-        elif 'carbohydrate' in name:
+        elif 'carbohydrate' in name and 'by difference' in name:
             nutrient_dict['carbs'] = value
-        elif 'fat' in name:
+        elif 'total lipid (fat)' in name:
             nutrient_dict['fat'] = value
-        elif 'calorie' in name or 'energy' in name:
+        elif 'energy' in name:
             nutrient_dict['calories'] = value
 
     # Generate response
@@ -76,6 +93,12 @@ def analyze_food_for_chat(food_query: str) -> str:
 
     if protein > 10:
         response += "It's a good source of protein! "
+
+    # Add serving size information if available
+    serving_size = food_data.get('servingSize')
+    serving_unit = food_data.get('servingSizeUnit')
+    if serving_size and serving_unit:
+        response += f"\n\nNutritional values are based on a {serving_size}{serving_unit} serving."
 
     return response
 
