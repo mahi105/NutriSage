@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Nutrition Overview</h2>
+                <div class="chart-container" style="position: relative; height:40vh; width:100%">
+                    <canvas id="macroChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Daily Goals</h2>
+                <div class="chart-container" style="position: relative; height:40vh; width:100%">
+                    <canvas id="goalsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sample data for demonstration
+    new Chart(document.getElementById('macroChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Protein', 'Carbs', 'Fat'],
+            datasets: [{
+                data: [25, 50, 25],
+                backgroundColor: [
+                    '#4CAF50',
+                    '#81C784',
+                    '#C8E6C9'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Recommended Macro Distribution'
+                }
+            }
+        }
+    });
+
+    new Chart(document.getElementById('goalsChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Calories', 'Protein (g)', 'Carbs (g)', 'Fat (g)'],
+            datasets: [{
+                label: 'Current',
+                data: [2000, 150, 250, 70],
+                backgroundColor: '#4CAF50'
+            }, {
+                label: 'Goal',
+                data: [2500, 180, 300, 80],
+                backgroundColor: '#81C784'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Daily Progress'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
