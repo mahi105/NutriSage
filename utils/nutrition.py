@@ -2,11 +2,22 @@ import os
 import requests
 from typing import List, Dict, Optional
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
 USDA_API_KEY = os.environ.get("USDA_API_KEY")
 USDA_API_BASE_URL = "https://api.nal.usda.gov/fdc/v1"
+
+def split_food_query(query: str) -> List[str]:
+    """
+    Split a compound food query into individual food items
+    """
+    # Split on common conjunctions and punctuation
+    split_patterns = r'(?:and|,|\s+with\s+|\s+&\s+)'
+    items = re.split(split_patterns, query.lower())
+    # Clean up and remove empty items
+    return [item.strip() for item in items if item.strip()]
 
 def get_food_analysis(food_query: str) -> Optional[Dict]:
     """
@@ -37,12 +48,20 @@ def get_food_analysis(food_query: str) -> Optional[Dict]:
         # Try to find an exact match first
         for food in data['foods']:
             description = food.get('description', '').lower()
-            if food_query.lower() in description:
+            # Check if the food query words appear in the description
+            query_words = food_query.lower().split()
+            if all(word in description for word in query_words):
                 logger.debug(f"Found matching food: {food['description']}")
                 return food
 
-        # If no exact match, return the first result
-        logger.debug(f"No exact match found, using first result: {data['foods'][0]['description']}")
+        # If no exact match, try partial matching
+        for food in data['foods']:
+            description = food.get('description', '').lower()
+            if any(word in description for word in food_query.lower().split()):
+                logger.debug(f"Found partial match: {food['description']}")
+                return food
+
+        logger.debug(f"No match found, using first result: {data['foods'][0]['description']}")
         return data['foods'][0]
 
     except requests.exceptions.RequestException as e:
@@ -53,11 +72,33 @@ def analyze_food_for_chat(food_query: str) -> str:
     """
     Analyze food and return a chatbot-friendly response
     """
-    food_data = get_food_analysis(food_query)
+    # Split compound queries
+    food_items = split_food_query(food_query)
 
-    if not food_data:
-        return f"I couldn't find nutritional information for {food_query}. Could you try being more specific? For example, instead of 'orange', try 'fresh orange' or 'orange fruit'."
+    if len(food_items) > 1:
+        # Handle multiple food items
+        responses = []
+        for item in food_items:
+            food_data = get_food_analysis(item)
+            if food_data:
+                responses.append(format_food_analysis(food_data))
 
+        if not responses:
+            return f"I couldn't find nutritional information for any of these foods. Could you try being more specific?"
+
+        return "\n\n=====\n\n".join(responses)
+    else:
+        # Single food item
+        food_data = get_food_analysis(food_query)
+        if not food_data:
+            return f"I couldn't find nutritional information for {food_query}. Could you try being more specific? For example, instead of 'orange', try 'fresh orange' or 'orange fruit'."
+
+        return format_food_analysis(food_data)
+
+def format_food_analysis(food_data: Dict) -> str:
+    """
+    Format food analysis data into a readable response
+    """
     # Extract key nutrients
     nutrients = food_data.get('foodNutrients', [])
     nutrient_dict = {}
@@ -76,13 +117,13 @@ def analyze_food_for_chat(food_query: str) -> str:
             nutrient_dict['calories'] = value
 
     # Generate response
-    response = f"Here's what I found about {food_data.get('description', food_query)}:\n\n"
+    response = f"Here's what I found about {food_data.get('description', '')}:\n\n"
     response += f"• Calories: {nutrient_dict.get('calories', 0):.1f} kcal\n"
     response += f"• Protein: {nutrient_dict.get('protein', 0):.1f}g\n"
     response += f"• Carbs: {nutrient_dict.get('carbs', 0):.1f}g\n"
     response += f"• Fat: {nutrient_dict.get('fat', 0):.1f}g\n\n"
 
-    # Add simple advice
+    # Add nutritional advice
     calories = nutrient_dict.get('calories', 0)
     protein = nutrient_dict.get('protein', 0)
 
