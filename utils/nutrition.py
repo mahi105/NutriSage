@@ -9,10 +9,22 @@ logger = logging.getLogger(__name__)
 USDA_API_KEY = os.environ.get("USDA_API_KEY")
 USDA_API_BASE_URL = "https://api.nal.usda.gov/fdc/v1"
 
+def clean_food_query(query: str) -> str:
+    """
+    Clean up the food query by removing question words and common filler words
+    """
+    # Remove question words and filler words
+    question_words = r'\b(what|should|how|about|can|i|eat|have|tell|me)\b'
+    query = re.sub(question_words, '', query.lower())
+    # Remove punctuation except commas (used for separating foods)
+    query = re.sub(r'[?.!]', '', query)
+    return query.strip()
+
 def split_food_query(query: str) -> List[str]:
     """
     Split a compound food query into individual food items
     """
+    query = clean_food_query(query)
     # Split on common conjunctions and punctuation
     split_patterns = r'(?:and|,|\s+with\s+|\s+&\s+)'
     items = re.split(split_patterns, query.lower())
@@ -24,7 +36,8 @@ def get_food_analysis(food_query: str) -> Optional[Dict]:
     Get nutrition information for a food item from USDA API
     """
     try:
-        # Add logging to debug API calls
+        # Clean up the query
+        food_query = clean_food_query(food_query)
         logger.debug(f"Searching for food: {food_query}")
 
         response = requests.get(
@@ -45,24 +58,42 @@ def get_food_analysis(food_query: str) -> Optional[Dict]:
             logger.debug(f"No foods found for query: {food_query}")
             return None
 
-        # Try to find an exact match first
+        # Try to find the best match
+        query_terms = set(food_query.split())
+        best_match = None
+        highest_match_score = 0
+
         for food in data['foods']:
             description = food.get('description', '').lower()
-            # Check if the food query words appear in the description
-            query_words = food_query.lower().split()
-            if all(word in description for word in query_words):
-                logger.debug(f"Found matching food: {food['description']}")
-                return food
+            desc_terms = set(description.split())
 
-        # If no exact match, try partial matching
-        for food in data['foods']:
-            description = food.get('description', '').lower()
-            if any(word in description for word in food_query.lower().split()):
-                logger.debug(f"Found partial match: {food['description']}")
-                return food
+            # Calculate match score based on word overlap
+            common_terms = query_terms.intersection(desc_terms)
+            match_score = len(common_terms) / len(query_terms)
 
-        logger.debug(f"No match found, using first result: {data['foods'][0]['description']}")
-        return data['foods'][0]
+            # Boost score if it's an exact phrase match
+            if food_query in description:
+                match_score += 1
+
+            # Boost score for raw/fresh foods over processed ones
+            if any(word in description.lower() for word in ['raw', 'fresh', 'natural']):
+                match_score += 0.5
+
+            # Penalize scores for obviously wrong matches
+            if any(word in description.lower() for word in ['candy', 'processed', 'artificial']):
+                match_score -= 0.5
+
+            if match_score > highest_match_score:
+                highest_match_score = match_score
+                best_match = food
+                logger.debug(f"Found better match: {food['description']} (score: {match_score})")
+
+        if best_match and highest_match_score > 0.3:  # Only use matches with decent confidence
+            return best_match
+
+        # If no good match found, return None to trigger a more specific request
+        logger.debug(f"No good match found for: {food_query}")
+        return None
 
     except requests.exceptions.RequestException as e:
         logger.error(f"USDA API request failed: {str(e)}")
