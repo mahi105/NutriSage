@@ -5,9 +5,9 @@
     <div class="col-lg-6">
         <div class="card mb-4">
             <div class="card-body">
-                <h2 class="card-title">Nutrition Overview</h2>
+                <h2 class="card-title">Physical Activity</h2>
                 <div class="chart-container" style="position: relative; height:40vh; width:100%">
-                    <canvas id="macroChart"></canvas>
+                    <canvas id="activityChart"></canvas>
                 </div>
             </div>
         </div>
@@ -15,9 +15,66 @@
     <div class="col-lg-6">
         <div class="card mb-4">
             <div class="card-body">
-                <h2 class="card-title">Daily Goals</h2>
+                <h2 class="card-title">Nutrition Tracking</h2>
                 <div class="chart-container" style="position: relative; height:40vh; width:100%">
-                    <canvas id="goalsChart"></canvas>
+                    <canvas id="nutritionChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3>Sleep Time</h3>
+                <div class="progress mb-3">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: 80%;">
+                        <span>6.4 / 8 hours</span>
+                    </div>
+                </div>
+                <small class="text-muted">Goal: 8 hours</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3>Weight Progress</h3>
+                <div class="progress mb-3">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: 60%;">
+                        <span>75kg / 70kg goal</span>
+                    </div>
+                </div>
+                <small class="text-muted">Target: 70kg</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <h3>My Activities</h3>
+        <div class="activity-timeline">
+            <div class="row">
+                <div class="col-4">
+                    <div class="activity-item active">
+                        <i class="bi bi-lightning"></i>
+                        <span>Running</span>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="activity-item">
+                        <i class="bi bi-bicycle"></i>
+                        <span>Cycling</span>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="activity-item">
+                        <i class="bi bi-heart"></i>
+                        <span>Meditation</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -28,18 +85,16 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Sample data for demonstration
-    new Chart(document.getElementById('macroChart'), {
-        type: 'doughnut',
+    // Physical Activity Chart
+    new Chart(document.getElementById('activityChart'), {
+        type: 'line',
         data: {
-            labels: ['Protein', 'Carbs', 'Fat'],
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
             datasets: [{
-                data: [25, 50, 25],
-                backgroundColor: [
-                    '#4CAF50',
-                    '#81C784',
-                    '#C8E6C9'
-                ]
+                label: 'Steps',
+                data: [7500, 8200, 7800, 9100, 8500, 8800, 9000],
+                borderColor: 'rgb(76, 175, 80)',
+                tension: 0.1
             }]
         },
         options: {
@@ -47,24 +102,28 @@ document.addEventListener('DOMContentLoaded', function() {
             plugins: {
                 title: {
                     display: true,
-                    text: 'Recommended Macro Distribution'
+                    text: 'Weekly Activity'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
         }
     });
 
-    new Chart(document.getElementById('goalsChart'), {
+    // Nutrition Tracking Chart
+    new Chart(document.getElementById('nutritionChart'), {
         type: 'bar',
         data: {
-            labels: ['Calories', 'Protein (g)', 'Carbs (g)', 'Fat (g)'],
+            labels: ['Breakfast', 'Lunch', 'Dinner'],
             datasets: [{
-                label: 'Current',
-                data: [2000, 150, 250, 70],
-                backgroundColor: '#4CAF50'
-            }, {
-                label: 'Goal',
-                data: [2500, 180, 300, 80],
-                backgroundColor: '#81C784'
+                label: 'Calories',
+                data: [450, 700, 600],
+                backgroundColor: 'rgba(76, 175, 80, 0.5)',
+                borderColor: 'rgb(76, 175, 80)',
+                borderWidth: 1
             }]
         },
         options: {
@@ -72,11 +131,57 @@ document.addEventListener('DOMContentLoaded', function() {
             plugins: {
                 title: {
                     display: true,
-                    text: 'Daily Progress'
+                    text: 'Daily Nutrition'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
         }
     });
 });
 </script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.activity-timeline {
+    padding: 1rem 0;
+}
+
+.activity-item {
+    text-align: center;
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--bs-dark);
+    border: 1px solid var(--nutrition-dark);
+    transition: all 0.3s ease;
+}
+
+.activity-item.active {
+    background: var(--nutrition-primary);
+    color: white;
+}
+
+.activity-item i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.progress {
+    height: 25px;
+    background-color: var(--bs-dark);
+    border: 1px solid var(--nutrition-dark);
+}
+
+.progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+}
+</style>
 {% endblock %}
