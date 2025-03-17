@@ -31,7 +31,43 @@
             {% endif %}
         {% endwith %}
 
-        {% block content %}{% endblock %}
+        {% block content %}
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title mb-4">Personalized Nutrition Analysis</h2>
+                        <!-- Previous form remains the same -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title">Try Our Chat Assistant!</h3>
+                        <p class="card-text">Want to learn about specific foods? Our nutrition chat assistant can help!</p>
+                        <a href="{{ url_for('chat') }}" class="btn btn-primary">
+                            <i class="bi bi-chat-dots"></i> Open Chat Assistant
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <img src="https://images.unsplash.com/photo-1598002041532-459c3549b714" class="card-img-top" alt="Healthy Food">
+                    <div class="card-body">
+                        <h3 class="card-title">Why Choose Us?</h3>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">Personalized nutrition recommendations</li>
+                            <li class="list-group-item">Evidence-based analysis using USDA database</li>
+                            <li class="list-group-item">Custom meal planning based on your goals</li>
+                            <li class="list-group-item">Detailed macro and micronutrient breakdown</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endblock %}
     </main>
 
     <footer class="footer mt-auto py-3">
