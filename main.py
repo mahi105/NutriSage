@@ -2,6 +2,7 @@ import os
 import logging
 from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
 from utils.nutrition import get_food_analysis, generate_recommendations, analyze_food_for_chat
+from utils.recipe import generate_recipe # Added import
 from datetime import datetime
 
 # Configure logging
@@ -110,6 +111,20 @@ def analyze():
         logger.error(f"Error processing nutrition analysis: {str(e)}")
         flash("An error occurred while processing your request. Please try again.", "error")
         return redirect(url_for('index'))
+
+@app.route('/recipe', methods=['GET', 'POST']) #Added route
+def recipe():
+    recipe_data = None
+    if request.method == 'POST':
+        dish_type = request.form.get('dish_type')
+        preferences = request.form.getlist('preferences')
+        recipe_data = generate_recipe(dish_type, preferences)
+
+        if not recipe_data:
+            flash("Sorry, couldn't generate the recipe. Please try again.", "error")
+
+    return render_template('recipe.html', recipe=recipe_data) #Added route
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

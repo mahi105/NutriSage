@@ -109,15 +109,26 @@ def analyze_food_for_chat(food_query: str) -> str:
     if len(food_items) > 1:
         # Handle multiple food items
         responses = []
+        food_data_list = []
+
         for item in food_items:
             food_data = get_food_analysis(item)
             if food_data:
+                food_data_list.append(food_data)
                 responses.append(format_food_analysis(food_data))
 
         if not responses:
             return f"I couldn't find nutritional information for any of these foods. Could you try being more specific?"
 
-        return "\n\n=====\n\n".join(responses)
+        # Combine responses and add food pairing analysis
+        combined_response = "\n\n".join(responses)
+
+        # Add food pairing analysis if multiple foods
+        if len(food_data_list) > 1:
+            pairing_advice = analyze_food_pairing(food_data_list)
+            combined_response += f"\n\n{pairing_advice}"
+
+        return combined_response
     else:
         # Single food item
         food_data = get_food_analysis(food_query)
@@ -173,6 +184,37 @@ def format_food_analysis(food_data: Dict) -> str:
         response += f"\n\nNutritional values are based on a {serving_size}{serving_unit} serving."
 
     return response
+
+def analyze_food_pairing(foods: List[Dict]) -> str:
+    """
+    Analyze if foods can be consumed together based on nutritional properties
+    """
+    # Extract food descriptions
+    food_names = [food.get('description', '').lower() for food in foods]
+
+    # Define incompatible food groups
+    incompatible_pairs = [
+        (['milk', 'dairy'], ['fish', 'seafood']),  # Avoid milk with fish
+        (['citrus', 'orange', 'lemon'], ['milk', 'dairy']),  # Avoid citrus with dairy
+    ]
+
+    # Check for incompatibilities
+    for group1, group2 in incompatible_pairs:
+        if (any(term in ' '.join(food_names) for term in group1) and 
+            any(term in ' '.join(food_names) for term in group2)):
+            return "⚠️ Note: These foods might not be the best combination for optimal nutrition absorption. Consider eating them separately."
+
+    # If no incompatibilities found, give positive feedback
+    total_calories = sum(
+        next((n['value'] for n in food.get('foodNutrients', []) 
+              if n.get('nutrientName', '').lower() == 'energy'), 0)
+        for food in foods
+    )
+
+    if total_calories < 300:
+        return "✅ These foods make a healthy, low-calorie combination!"
+    else:
+        return "✅ These foods can be eaten together. Just be mindful of portion sizes as the total calories add up."
 
 def generate_recommendations(
     daily_calories: float,

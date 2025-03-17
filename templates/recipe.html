@@ -1,0 +1,73 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Recipe Generator</h2>
+                <form id="recipeForm" action="{{ url_for('generate_recipe') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="dishType" class="form-label">What would you like to cook?</label>
+                        <input type="text" class="form-control" id="dishType" name="dish_type" 
+                               placeholder="E.g., Chicken curry, Vegetarian pasta, Chocolate cake" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Dietary Preferences</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="preferences" value="vegetarian" id="vegetarian">
+                            <label class="form-check-label" for="vegetarian">Vegetarian</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="preferences" value="vegan" id="vegan">
+                            <label class="form-check-label" for="vegan">Vegan</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="preferences" value="gluten_free" id="gluten_free">
+                            <label class="form-check-label" for="gluten_free">Gluten-free</label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-magic"></i> Generate Recipe
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        {% if recipe %}
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">{{ recipe.title }}</h3>
+                
+                <div class="mb-4">
+                    <h4>Ingredients:</h4>
+                    <ul class="list-group list-group-flush">
+                        {% for ingredient in recipe.ingredients %}
+                        <li class="list-group-item">{{ ingredient }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                <div class="mb-4">
+                    <h4>Instructions:</h4>
+                    <ol class="list-group list-group-numbered">
+                        {% for step in recipe.instructions %}
+                        <li class="list-group-item">{{ step }}</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+                
+                {% if recipe.tips %}
+                <div class="alert alert-info">
+                    <h4>Chef's Tips:</h4>
+                    <p>{{ recipe.tips }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
