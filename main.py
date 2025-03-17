@@ -2,6 +2,7 @@ import os
 import logging
 from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
 from utils.nutrition import get_food_analysis, generate_recommendations, analyze_food_for_chat
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -37,6 +38,26 @@ def chat_message():
     except Exception as e:
         logger.error(f"Error processing chat message: {str(e)}")
         return jsonify({'response': 'Sorry, I had trouble processing that request. Please try again.'}), 500
+
+@app.route('/record_activity', methods=['POST'])
+def record_activity():
+    try:
+        activity_type = request.form.get('activity_type')
+        duration = int(request.form.get('duration'))
+        intensity = request.form.get('intensity')
+        activity_date = datetime.strptime(request.form.get('activity_date'), '%Y-%m-%d')
+        notes = request.form.get('notes', '')
+
+        # For now, just log the activity (we'll add database storage later)
+        logger.info(f"Recorded activity: {activity_type} for {duration} minutes on {activity_date}")
+
+        flash("Activity recorded successfully!", "success")
+        return redirect(url_for('dashboard'))
+
+    except Exception as e:
+        logger.error(f"Error recording activity: {str(e)}")
+        flash("Error recording activity. Please try again.", "error")
+        return redirect(url_for('dashboard'))
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
