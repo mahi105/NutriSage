@@ -1,0 +1,36 @@
+/* Custom styles to complement Bootstrap */
+.chart-container {
+    margin: 20px 0;
+    padding: 10px;
+    background: var(--bs-dark);
+    border-radius: 8px;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand i {
+    color: var(--bs-info);
+    margin-right: 8px;
+}
+
+.form-control:focus {
+    border-color: var(--bs-info);
+    box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.25);
+}
+
+.footer {
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    background-color: var(--bs-dark) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .chart-container {
+        height: 30vh !important;
+    }
+}

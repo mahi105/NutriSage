@@ -1,0 +1,94 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title mb-4">Personalized Nutrition Analysis</h2>
+                <form action="{{ url_for('analyze') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="age" class="form-label">Age</label>
+                        <input type="number" class="form-control" id="age" name="age" required min="18" max="120">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="weight" class="form-label">Weight (kg)</label>
+                        <input type="number" class="form-control" id="weight" name="weight" required step="0.1" min="30" max="300">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="height" class="form-label">Height (cm)</label>
+                        <input type="number" class="form-control" id="height" name="height" required step="0.1" min="100" max="250">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Gender</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="gender" id="male" value="male" required>
+                            <label class="form-check-label" for="male">Male</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="gender" id="female" value="female">
+                            <label class="form-check-label" for="female">Female</label>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="activity_level" class="form-label">Activity Level</label>
+                        <select class="form-select" id="activity_level" name="activity_level" required>
+                            <option value="sedentary">Sedentary (little or no exercise)</option>
+                            <option value="light">Lightly active (light exercise 1-3 days/week)</option>
+                            <option value="moderate">Moderately active (moderate exercise 3-5 days/week)</option>
+                            <option value="very">Very active (hard exercise 6-7 days/week)</option>
+                            <option value="extra">Extra active (very hard exercise & physical job)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="goal" class="form-label">Goal</label>
+                        <select class="form-select" id="goal" name="goal" required>
+                            <option value="maintain">Maintain weight</option>
+                            <option value="lose">Lose weight</option>
+                            <option value="gain">Gain weight</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Dietary Restrictions</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="dietary_restrictions" value="vegetarian" id="vegetarian">
+                            <label class="form-check-label" for="vegetarian">Vegetarian</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="dietary_restrictions" value="vegan" id="vegan">
+                            <label class="form-check-label" for="vegan">Vegan</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="dietary_restrictions" value="gluten_free" id="gluten_free">
+                            <label class="form-check-label" for="gluten_free">Gluten-free</label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Get Recommendations</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <img src="https://images.unsplash.com/photo-1598002041532-459c3549b714" class="card-img-top" alt="Healthy Food">
+            <div class="card-body">
+                <h3 class="card-title">Why Choose Us?</h3>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Personalized nutrition recommendations</li>
+                    <li class="list-group-item">Evidence-based analysis using USDA database</li>
+                    <li class="list-group-item">Custom meal planning based on your goals</li>
+                    <li class="list-group-item">Detailed macro and micronutrient breakdown</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

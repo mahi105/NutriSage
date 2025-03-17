@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h2 class="card-title">Your Nutrition Analysis</h2>
+                <div class="alert alert-info">
+                    Your recommended daily calorie intake: <strong>{{ daily_calories }} calories</strong>
+                </div>
+                
+                <h3 class="mt-4">Macronutrient Distribution</h3>
+                <div class="chart-container" style="position: relative; height:40vh; width:100%">
+                    <canvas id="macroChart"></canvas>
+                </div>
+                
+                <h3 class="mt-4">Recommended Foods</h3>
+                <div class="row">
+                    {% for food in recommendations.suggested_foods %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ food.description }}</h5>
+                                <p class="card-text">
+                                    <strong>Protein:</strong> {{ food.foodNutrients|selectattr("nutrientName", "equalto", "Protein")|map(attribute="value")|first|default(0)|round(1) }}g<br>
+                                    <strong>Carbs:</strong> {{ food.foodNutrients|selectattr("nutrientName", "equalto", "Carbohydrate, by difference")|map(attribute="value")|first|default(0)|round(1) }}g<br>
+                                    <strong>Fat:</strong> {{ food.foodNutrients|selectattr("nutrientName", "equalto", "Total lipid (fat)")|map(attribute="value")|first|default(0)|round(1) }}g
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Daily Targets</h3>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Protein
+                        <span class="badge bg-primary rounded-pill">{{ recommendations.macros.protein }}g</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Carbohydrates
+                        <span class="badge bg-success rounded-pill">{{ recommendations.macros.carbs }}g</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Fat
+                        <span class="badge bg-warning rounded-pill">{{ recommendations.macros.fat }}g</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1551584277-a31a25e08fc8" class="card-img-top" alt="Healthy Lifestyle">
+            <div class="card-body">
+                <h4 class="card-title">Tips for Success</h4>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Stay hydrated with 8-10 glasses of water daily</li>
+                    <li class="list-group-item">Eat regularly spaced meals throughout the day</li>
+                    <li class="list-group-item">Include a variety of colorful fruits and vegetables</li>
+                    <li class="list-group-item">Get adequate sleep and manage stress</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
