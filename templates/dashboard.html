@@ -86,7 +86,6 @@
     </div>
 </div>
 
-<!-- Record Activity Modal -->
 <div class="modal fade" id="recordActivityModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -149,7 +148,6 @@
 {% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Set default date to today
     document.getElementById('activityDate').valueAsDate = new Date();
 
     // Physical Activity Chart
@@ -180,7 +178,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Nutrition Tracking Chart
     new Chart(document.getElementById('nutritionChart'), {
         type: 'bar',
         data: {

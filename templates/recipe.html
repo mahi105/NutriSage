@@ -6,7 +6,7 @@
         <div class="card mb-4">
             <div class="card-body">
                 <h2 class="card-title mb-4">Recipe Generator</h2>
-                <form id="recipeForm" action="{{ url_for('generate_recipe') }}" method="POST">
+                <form id="recipeForm" action="{{ url_for('recipe') }}" method="POST">
                     <div class="mb-3">
                         <label for="dishType" class="form-label">What would you like to cook?</label>
                         <input type="text" class="form-control" id="dishType" name="dish_type" 
@@ -52,9 +52,9 @@
                 
                 <div class="mb-4">
                     <h4>Instructions:</h4>
-                    <ol class="list-group list-group-numbered">
+                    <ol class="list-group list-group-numbered recipe-instructions">
                         {% for step in recipe.instructions %}
-                        <li class="list-group-item">{{ step }}</li>
+                        <li class="list-group-item">{{ step|safe }}</li>
                         {% endfor %}
                     </ol>
                 </div>

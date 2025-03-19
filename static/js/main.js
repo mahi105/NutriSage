@@ -1,4 +1,3 @@
-// Initialize macro distribution chart when on results page
 document.addEventListener('DOMContentLoaded', function() {
     const macroChartCanvas = document.getElementById('macroChart');
     
@@ -16,9 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         recommendations.fat
                     ],
                     backgroundColor: [
-                        '#0d6efd',  // Bootstrap primary
-                        '#198754',  // Bootstrap success
-                        '#ffc107'   // Bootstrap warning
+                        '#0d6efd',  
+                        '#198754',  
+                        '#ffc107'   
                     ],
                     borderWidth: 1
                 }]
@@ -35,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Form validation
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function(event) {
@@ -47,7 +45,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Handle dietary restriction checkboxes
     const veganCheckbox = document.getElementById('vegan');
     const vegetarianCheckbox = document.getElementById('vegetarian');
     

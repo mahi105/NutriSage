@@ -2,10 +2,9 @@ import os
 import logging
 from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
 from utils.nutrition import get_food_analysis, generate_recommendations, analyze_food_for_chat
-from utils.recipe import generate_recipe # Added import
+from utils.recipe import generate_recipe
 from datetime import datetime
 
-# Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
@@ -49,7 +48,6 @@ def record_activity():
         activity_date = datetime.strptime(request.form.get('activity_date'), '%Y-%m-%d')
         notes = request.form.get('notes', '')
 
-        # For now, just log the activity (we'll add database storage later)
         logger.info(f"Recorded activity: {activity_type} for {duration} minutes on {activity_date}")
 
         flash("Activity recorded successfully!", "success")
@@ -63,7 +61,6 @@ def record_activity():
 @app.route('/analyze', methods=['POST'])
 def analyze():
     try:
-        # Get form data
         age = int(request.form.get('age'))
         weight = float(request.form.get('weight'))
         height = float(request.form.get('height'))
@@ -72,7 +69,6 @@ def analyze():
         goal = request.form.get('goal')
         dietary_restrictions = request.form.getlist('dietary_restrictions')
 
-        # Calculate BMR and daily calorie needs
         if gender == 'male':
             bmr = 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)
         else:
@@ -88,13 +84,11 @@ def analyze():
 
         daily_calories = bmr * activity_multipliers[activity_level]
 
-        # Adjust calories based on goal
         if goal == 'lose':
             daily_calories -= 500
         elif goal == 'gain':
             daily_calories += 500
 
-        # Get food recommendations
         recommendations = generate_recommendations(
             daily_calories,
             dietary_restrictions,
@@ -112,19 +106,17 @@ def analyze():
         flash("An error occurred while processing your request. Please try again.", "error")
         return redirect(url_for('index'))
 
-@app.route('/recipe', methods=['GET', 'POST']) #Added route
+@app.route('/recipe', methods=['GET', 'POST'])
 def recipe():
     recipe_data = None
     if request.method == 'POST':
         dish_type = request.form.get('dish_type')
         preferences = request.form.getlist('preferences')
         recipe_data = generate_recipe(dish_type, preferences)
-
+        print(f"Recipe data: {recipe_data}")  
         if not recipe_data:
             flash("Sorry, couldn't generate the recipe. Please try again.", "error")
-
-    return render_template('recipe.html', recipe=recipe_data) #Added route
-
+    return render_template('recipe.html', recipe=recipe_data)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
